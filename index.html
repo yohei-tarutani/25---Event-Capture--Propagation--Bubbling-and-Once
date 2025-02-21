@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Understanding JavaScript's Capture</title>
+    <link rel="icon" href="https://fav.farm/🔥" />
+  </head>
+  <body class="bod">
+    <div class="one">
+      <div class="two">
+        <div class="three"></div>
+      </div>
+    </div>
+
+    <style>
+      html {
+        box-sizing: border-box;
+      }
+
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+
+      div {
+        width: 100%;
+        padding: 100px;
+      }
+
+      .one {
+        background: thistle;
+      }
+
+      .two {
+        background: mistyrose;
+      }
+
+      .three {
+        background: coral;
+      }
+    </style>
+
+    <button></button>
+    <script>
+      const divs = document.querySelectorAll("div");
+
+      function logText(e) {
+        console.log(this);
+      }
+      // Bubbling Effect
+      document.body.addEventListener("click", logText);
+      divs.forEach((div) => {
+        div.addEventListener("click", logText);
+      });
+      // When I click the third div (with the class of "three"), events fire off from the bottom element(=Bubbling effect).
+      // Log:
+      // <div class="three">
+      // <div class="two">
+      // <div class="one">
+      // <body class="bod">
+
+      // Change Event Orders(=Top Down) with "{ capture: true }"
+      document.body.addEventListener("click", logText, {
+        capture: true,
+      });
+      divs.forEach((div) => {
+        div.addEventListener("click", logText, { capture: true });
+        // by default, the third optional argument {capture: false} is omitted.
+      });
+      // When I click the third div (with the class of "three"), you can see, events fire off from the top elements by the help of the optional object {capture: true} in addEventListener.
+      // Log;
+      // <body class="bod">
+      // <div class="one">
+      // <div class="two">
+      // <div class="three">
+
+      // Stop Bubbling Effect with "e.stopPropagation()";
+      function logText2(e) {
+        // Stop bubbling (Only one clicked event fires off)
+        e.stopPropagation();
+        console.log(this);
+        // ex. <div class="three">
+      }
+      document.body.addEventListener("click", logText2);
+      divs.forEach((div) => {
+        div.addEventListener("click", logText2);
+      });
+
+      // Remove the function binding (Logs Nothing after one click result) with "{ once: true }"
+      function logText3(e) {
+        console.log(this);
+        // ex. <div class="three">
+        // Log Nothing... (from the second click, nothing logs)
+      }
+      document.body.addEventListener("click", logText3, {
+        capture: false,
+        once: true,
+      });
+      divs.forEach((div) => {
+        div.addEventListener("click", logText3, { capture: false, once: true });
+      });
+    </script>
+  </body>
+</html>
